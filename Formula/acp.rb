@@ -7,6 +7,7 @@ class Acp < Formula
   sha256 "2aecae1c546c968d6ec62b19cd6d1e43b3958faa7b8fb4a9336ef4a5bcc48f03"
   license "MIT"
 
+  depends_on "python-setuptools" => :build
   depends_on "python@3.14"
 
   resource "pycryptodomex" do
@@ -15,7 +16,9 @@ class Acp < Formula
   end
 
   def install
-    virtualenv_install_with_resources
+    venv = virtualenv_create(libexec, "python3.14")
+    venv.pip_install resources, build_isolation: false
+    venv.pip_install_and_link buildpath, build_isolation: false
   end
 
   test do
