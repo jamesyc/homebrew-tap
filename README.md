@@ -1,6 +1,6 @@
-# JamesYC Homebrew Tap
+# Homebrew Tap
 
-Homebrew formulae for James Chang projects.
+Homebrew formulae for projects.
 
 ## Usage
 
