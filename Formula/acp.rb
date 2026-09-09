@@ -3,8 +3,8 @@ class Acp < Formula
 
   desc "AirPyrt Tools for Apple AirPort and Time Capsule ACP"
   homepage "https://github.com/jamesyc/airpyrt-tools"
-  url "https://github.com/jamesyc/airpyrt-tools/releases/download/v1.0.0/acp-1.0.0.tar.gz"
-  sha256 "2aecae1c546c968d6ec62b19cd6d1e43b3958faa7b8fb4a9336ef4a5bcc48f03"
+  url "https://github.com/jamesyc/airpyrt-tools/releases/download/v1.1.0/acp-1.1.0.tar.gz"
+  sha256 "53adf6faf92affe03271b74943a9620ca3db72cd9a7b78776865c146c26ffb5a"
   license "MIT"
 
   depends_on "python-setuptools" => :build
