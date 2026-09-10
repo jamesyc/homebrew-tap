@@ -3,8 +3,8 @@ class Tcapsule < Formula
 
   desc "Deploy modern Samba to Apple AirPort Time Capsules"
   homepage "https://github.com/jamesyc/TimeCapsuleSMB"
-  url "https://github.com/jamesyc/TimeCapsuleSMB/archive/refs/tags/v2.1.1.tar.gz"
-  sha256 "bb475066b58cfbd1ac71e5d035352a808f4acb49b9967a47272191922810cd3e"
+  url "https://github.com/jamesyc/TimeCapsuleSMB/archive/refs/tags/v2.2.9.tar.gz"
+  sha256 "a0db36fc4abcbf7b5bfbd0f162c0cbe06f4df4a1e558aebc10bdd83cf923504e"
   license "GPL-3.0-only"
   head "https://github.com/jamesyc/TimeCapsuleSMB.git", branch: "main"
 
