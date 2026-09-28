@@ -16,6 +16,21 @@ brew install jamesyc/tap/<formula>
 
 ## Formulae
 
+### canonshuttercount
+
+Read the original Canon EOS 5D shutter count over USB. Both PC Connect and
+Print/PTP are supported; hardware validation has been completed on Apple Silicon
+macOS with firmware 1.1.1. Linux camera behavior remains unverified.
+
+```sh
+brew install jamesyc/tap/canonshuttercount
+canonshuttercount
+```
+
+Wait for the camera's card activity to finish before reading. A read starting in
+PC Connect leaves USB in Print/PTP; power-cycle to return to the camera's saved
+Communication setting.
+
 ### tcapsule
 
 Deploy modern Samba to Apple AirPort Time Capsules.
