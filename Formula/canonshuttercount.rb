@@ -6,10 +6,11 @@ class Canonshuttercount < Formula
   url "https://github.com/jamesyc/CanonShutterCount/releases/download/v0.1.0/canonshuttercount-0.1.0.tar.gz"
   sha256 "1552c1b07b6985067dce04e699de0018e820fd8e2184415aebe22d8f6cae9193"
   license "GPL-3.0-only"
+  revision 1
 
   depends_on "python-setuptools" => :build
   depends_on "libusb"
-  depends_on "python@3.14"
+  depends_on "python@3.15"
 
   resource "pyusb" do
     url "https://files.pythonhosted.org/packages/00/6b/ce3727395e52b7b76dfcf0c665e37d223b680b9becc60710d4bc08b7b7cb/pyusb-1.3.1.tar.gz"
@@ -17,7 +18,7 @@ class Canonshuttercount < Formula
   end
 
   def install
-    venv = virtualenv_create(libexec, "python3.14")
+    venv = virtualenv_create(libexec, "python3.15")
     venv.pip_install resources, build_isolation: false
     venv.pip_install buildpath, build_isolation: false
     (bin/"canonshuttercount").write_env_script libexec/"bin/canonshuttercount",
