@@ -7,8 +7,10 @@ name: Update TimeCapsuleSMB
 # picks up a new release; run it by hand to do that at once, or with a tag to
 # write one release again:
 #   gh workflow run update.yml -R jamesyc/homebrew-tap [-f tag=v3.9.0]
-# GitHub turns the schedule off after 60 days without a commit here; turn it
-# back on in the Actions tab.
+# GitHub turns a public repository's schedule off after 60 days without a
+# commit. Each run enables this workflow again, which restarts that count, so
+# the daily run keeps it on. If it is ever off, turn it back on in the Actions
+# tab: a run that never starts cannot.
 on:
   schedule:
     - cron: "0 6 * * *"
@@ -32,9 +34,17 @@ jobs:
     name: Find a new release
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
     outputs:
       tag: ${{ steps.release.outputs.tag }}
     steps:
+      - name: Keep the schedule on
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/$GITHUB_REPOSITORY/actions/workflows/update.yml/enable"
+
       - name: Check out the tap
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
