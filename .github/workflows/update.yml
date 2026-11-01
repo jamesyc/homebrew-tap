@@ -1,0 +1,148 @@
+name: Update TimeCapsuleSMB
+
+# Puts each TimeCapsuleSMB release in this tap: the timecapsulesmb cask
+# installs the app's disk image, the tcapsule formula the CLI from the
+# release's source. Both come from the templates in TimeCapsuleSMB's
+# homebrew/ folder, which sit beside the code they depend on. The daily run
+# picks up a new release; run it by hand to do that at once, or with a tag to
+# write one release again:
+#   gh workflow run update.yml -R jamesyc/homebrew-tap [-f tag=v3.9.0]
+# GitHub turns the schedule off after 60 days without a commit here; turn it
+# back on in the Actions tab.
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to write, such as v3.9.0. Empty means the latest release, if the tap does not have it yet.
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: update-timecapsulesmb
+
+env:
+  SOURCE_REPOSITORY: jamesyc/TimeCapsuleSMB
+
+jobs:
+  check:
+    name: Find a new release
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
+    steps:
+      - name: Check out the tap
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Compare the latest release with the tap
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          # The latest release is never a draft or a prerelease.
+          tag="${TAG:-$(gh release view -R "$SOURCE_REPOSITORY" --json tagName --jq .tagName)}"
+          # Releases from before the cask have no disk image for it.
+          if ! gh release view "$tag" -R "$SOURCE_REPOSITORY" --json assets --jq '.assets[].name' |
+            grep -qx TimeCapsuleSMB.dmg; then
+            if [[ -n "$TAG" ]]; then
+              echo "::error::$tag has no TimeCapsuleSMB.dmg"
+              exit 1
+            fi
+            echo "$tag has no TimeCapsuleSMB.dmg, so the tap keeps what it has."
+            exit 0
+          fi
+          current="$(sed -n 's/^  version "\(.*\)"$/\1/p' Casks/timecapsulesmb.rb 2>/dev/null || true)"
+          if [[ -z "$TAG" && "v$current" == "$tag" ]]; then
+            echo "The tap already has $tag."
+            exit 0
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+  update:
+    name: Write ${{ needs.check.outputs.tag }}
+    needs: check
+    if: needs.check.outputs.tag != ''
+    runs-on: macos-26
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ needs.check.outputs.tag }}
+      TAP: jamesyc/tap
+      # An auto-update before `brew install` would stash the cask and formula
+      # written into the tap and reset it to the tap's last commit.
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Check out the tap
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: tap
+          persist-credentials: false
+
+      # The templates come from main, so writing a release again picks up
+      # fixes made after it was tagged.
+      - name: Check out the templates
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ env.SOURCE_REPOSITORY }}
+          path: source
+          sparse-checkout: homebrew
+          persist-credentials: false
+
+      # homebrew/ holds both with @VERSION@, @DMG_SHA256@ and @SOURCE_SHA256@
+      # in place of the release's own values.
+      - name: Write the cask and formula
+        run: |
+          version="${TAG#v}"
+          # A hidden build's version (3.3.1-1) is a prerelease, which the tap never gets.
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::$TAG is not a release tag such as v3.9.0"
+            exit 1
+          fi
+          curl -fsSL -o "$RUNNER_TEMP/TimeCapsuleSMB.dmg" \
+            "https://github.com/$SOURCE_REPOSITORY/releases/download/$TAG/TimeCapsuleSMB.dmg"
+          curl -fsSL -o "$RUNNER_TEMP/source.tar.gz" \
+            "https://github.com/$SOURCE_REPOSITORY/archive/refs/tags/$TAG.tar.gz"
+          dmg_sha256="$(shasum -a 256 "$RUNNER_TEMP/TimeCapsuleSMB.dmg" | cut -d ' ' -f 1)"
+          source_sha256="$(shasum -a 256 "$RUNNER_TEMP/source.tar.gz" | cut -d ' ' -f 1)"
+          mkdir -p tap/Casks tap/Formula
+          for file in Casks/timecapsulesmb.rb Formula/tcapsule.rb; do
+            sed -e "s/@VERSION@/$version/g" -e "s/@DMG_SHA256@/$dmg_sha256/" \
+              -e "s/@SOURCE_SHA256@/$source_sha256/" "source/homebrew/$file" > "tap/$file"
+          done
+
+      - name: Add the formula's Python resources and check both
+        run: |
+          taps="$(brew --repository)/Library/Taps/jamesyc"
+          mkdir -p "$taps"
+          ln -s "$PWD/tap" "$taps/homebrew-tap"
+          brew trust --tap "$TAP"
+          brew update-python-resources "$TAP/tcapsule"
+          brew audit --strict --online "$TAP/tcapsule"
+          brew audit --strict --online --cask "$TAP/timecapsulesmb"
+          brew install --build-from-source "$TAP/tcapsule"
+          brew test "$TAP/tcapsule"
+
+      # The token reaches this step alone: the steps before it build and test
+      # code from PyPI.
+      - name: Commit to the tap
+        working-directory: tap
+        env:
+          PUSH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Casks/timecapsulesmb.rb Formula/tcapsule.rb
+          git commit -m "tcapsule, timecapsulesmb: update to $TAG"
+          git push "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD
