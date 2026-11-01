@@ -1,6 +1,6 @@
 # Homebrew Tap
 
-Homebrew formulae for projects.
+Homebrew formulae and casks for projects.
 
 ## Usage
 
@@ -33,7 +33,8 @@ Communication setting.
 
 ### tcapsule
 
-Deploy modern Samba to Apple AirPort Time Capsules.
+Deploy modern Samba to Apple AirPort Time Capsules from the command line. It
+needs an Apple silicon Mac on macOS 14 or later.
 
 ```sh
 brew install jamesyc/tap/tcapsule
@@ -49,4 +50,15 @@ AirPyrt Tools for Apple AirPort and Time Capsule ACP.
 ```sh
 brew install jamesyc/tap/acp
 acp --help
+```
+
+## Casks
+
+### timecapsulesmb
+
+The TimeCapsuleSMB app, which does the same as `tcapsule` with a window. It
+needs macOS 14 or later, on Apple silicon or Intel, and updates itself.
+
+```sh
+brew install --cask jamesyc/tap/timecapsulesmb
 ```
