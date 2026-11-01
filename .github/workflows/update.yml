@@ -46,11 +46,16 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ inputs.tag }}
         run: |
-          # The latest release is never a draft or a prerelease.
-          tag="${TAG:-$(gh release view -R "$SOURCE_REPOSITORY" --json tagName --jq .tagName)}"
+          # Each gh answer is stored first, so a failed gh call fails the run
+          # instead of reading as a release without a disk image.
+          tag="$TAG"
+          if [[ -z "$tag" ]]; then
+            # The latest release is never a draft or a prerelease.
+            tag="$(gh release view -R "$SOURCE_REPOSITORY" --json tagName --jq .tagName)"
+          fi
+          assets="$(gh release view "$tag" -R "$SOURCE_REPOSITORY" --json assets --jq '.assets[].name')"
           # Releases from before the cask have no disk image for it.
-          if ! gh release view "$tag" -R "$SOURCE_REPOSITORY" --json assets --jq '.assets[].name' |
-            grep -qx TimeCapsuleSMB.dmg; then
+          if ! grep -qx TimeCapsuleSMB.dmg <<<"$assets"; then
             if [[ -n "$TAG" ]]; then
               echo "::error::$tag has no TimeCapsuleSMB.dmg"
               exit 1
@@ -144,5 +149,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add Casks/timecapsulesmb.rb Formula/tcapsule.rb
+          # Writing a release again can change nothing.
+          if git diff --cached --quiet; then
+            echo "The tap already has these files for $TAG."
+            exit 0
+          fi
           git commit -m "tcapsule, timecapsulesmb: update to $TAG"
           git push "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD
