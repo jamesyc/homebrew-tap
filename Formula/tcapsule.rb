@@ -7,9 +7,12 @@ class Tcapsule < Formula
   sha256 "bd9de69832e5c6c2c35dd9c396ba3556cad5fa90061b14c31097312e9106106d"
   license "GPL-3.0-only"
 
-  depends_on arch: :arm64
-  depends_on :macos
   depends_on "python@3.15"
+
+  # On Linux, doctor's SMB checks use smbclient; on macOS they use smbutil.
+  on_linux do
+    depends_on "samba"
+  end
 
   # The Python resources are written for each release by
   # `brew update-python-resources`.
@@ -39,10 +42,15 @@ class Tcapsule < Formula
     # The device payloads deploy copies to the Time Capsule.
     (libexec/"distribution").install "bin"
     # Homebrew's own command: its messages say `tcapsule`, and it finds the
-    # payloads above. Its settings live in the user's folder, apart from the
-    # Mac app's, since every upgrade replaces this versioned Cellar folder.
+    # payloads above. Its settings live in the user's data folder, the one
+    # its flash backups use, since every upgrade replaces this versioned
+    # Cellar folder; on macOS they sit apart from the Mac app's.
     # A TCAPSULE_CONFIG or TCAPSULE_STATE_DIR the user sets still wins.
-    settings = "$HOME/Library/Application Support/TimeCapsuleSMB/CLI"
+    settings = if OS.mac?
+      "$HOME/Library/Application Support/TimeCapsuleSMB/CLI"
+    else
+      "${XDG_DATA_HOME:-$HOME/.local/share}/timecapsulesmb/CLI"
+    end
     rm bin/"tcapsule"
     (bin/"tcapsule").write_env_script libexec/"bin/tcapsule",
       TCAPSULE_CLIENT:            "homebrew",
@@ -53,15 +61,18 @@ class Tcapsule < Formula
 
   test do
     assert_equal "tcapsule #{version}", shell_output("#{bin}/tcapsule --version").strip
-    # The Python packages import, and every payload deploy copies is where the
-    # wrapper points with the hash the release lists. An empty token keeps the
-    # test out of telemetry.
+    # An empty token keeps the test out of telemetry.
     ENV["TCAPSULE_TELEMETRY_TOKEN"] = ""
     # The wrapper's TCAPSULE_CLIENT reaches Python: Homebrew needs no bootstrap.
     assert_match "nothing to bootstrap", shell_output("#{bin}/tcapsule bootstrap")
     assert JSON.parse(shell_output("#{bin}/tcapsule validate-install --json"))["ok"]
     # Its settings are in the user's folder, not the Cellar.
     paths = JSON.parse(shell_output("#{bin}/tcapsule paths --json"))
-    assert_equal "#{Dir.home}/Library/Application Support/TimeCapsuleSMB/CLI/.env", paths["config_path"]
+    settings = if OS.mac?
+      "#{Dir.home}/Library/Application Support/TimeCapsuleSMB/CLI"
+    else
+      "#{ENV.fetch("XDG_DATA_HOME", "").presence || "#{Dir.home}/.local/share"}/timecapsulesmb/CLI"
+    end
+    assert_equal "#{settings}/.env", paths["config_path"]
   end
 end
