@@ -34,7 +34,8 @@ Communication setting.
 ### tcapsule
 
 Deploy modern Samba to Apple AirPort Time Capsules from the command line. It
-needs an Apple silicon Mac on macOS 14 or later.
+needs an Apple silicon Mac. On macOS 14 and older, Homebrew has no prebuilt
+Python 3.15, so it compiles Python first.
 
 ```sh
 brew install jamesyc/tap/tcapsule
