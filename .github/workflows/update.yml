@@ -86,8 +86,6 @@ jobs:
     if: needs.check.outputs.tag != ''
     runs-on: macos-26
     timeout-minutes: 45
-    permissions:
-      contents: write
     env:
       TAG: ${{ needs.check.outputs.tag }}
       TAP: jamesyc/tap
@@ -149,8 +147,83 @@ jobs:
           brew install --build-from-source "$TAP/tcapsule"
           brew test "$TAP/tcapsule"
 
-      # The token reaches this step alone: the steps before it build and test
-      # code from PyPI.
+      - name: Keep the written cask and formula
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: tap-files
+          path: |
+            tap/Casks/timecapsulesmb.rb
+            tap/Formula/tcapsule.rb
+          if-no-files-found: error
+          retention-days: 1
+
+  linux:
+    name: Test the formula on Linux
+    needs: update
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TAP: jamesyc/tap
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Check out the tap
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: tap
+          persist-credentials: false
+
+      - name: Get the written cask and formula
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: tap-files
+          path: tap
+
+      - name: Install and test the formula
+        run: |
+          # The image has Homebrew in /home/linuxbrew, not on PATH, and older
+          # than the macOS runner's. It updates before the tap is linked: an
+          # update after that would reset the files written into it.
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew update --quiet
+          taps="$(brew --repository)/Library/Taps/jamesyc"
+          mkdir -p "$taps"
+          ln -s "$PWD/tap" "$taps/homebrew-tap"
+          brew trust --tap "$TAP"
+          brew install --build-from-source "$TAP/tcapsule"
+          brew test "$TAP/tcapsule"
+
+  commit:
+    name: Commit to the tap
+    needs: [check, linux]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # This job alone can write to the tap: the jobs before it build and test
+    # code from PyPI.
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ needs.check.outputs.tag }}
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Check out the tap
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: tap
+          persist-credentials: false
+
+      - name: Get the written cask and formula
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: tap-files
+          path: tap
+
       - name: Commit to the tap
         working-directory: tap
         env:
