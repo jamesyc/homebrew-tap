@@ -3,8 +3,8 @@ class Tcapsule < Formula
 
   desc "Install Samba 4 on Apple Time Capsules and AirPort Extremes"
   homepage "https://github.com/jamesyc/TimeCapsuleSMB"
-  url "https://github.com/jamesyc/TimeCapsuleSMB/archive/refs/tags/v3.8.1.tar.gz"
-  sha256 "61b75a969108d4c54bcfc5248eb1c8b7ae227cd6ca1dfc469fa9a82dada6062e"
+  url "https://github.com/jamesyc/TimeCapsuleSMB/archive/refs/tags/v3.8.2.tar.gz"
+  sha256 "a17c15b5807086a7ea03a991ae8c77de8e57ad4e9a73353a740739f3012489e1"
   license "GPL-3.0-only"
 
   depends_on "python@3.15"
@@ -28,8 +28,8 @@ class Tcapsule < Formula
   end
 
   resource "zeroconf" do
-    url "https://files.pythonhosted.org/packages/15/d2/7fa1e89251245a7135f13a653ccf0c8db46ab4ce1877007285b9da7e8865/zeroconf-0.152.0.tar.gz"
-    sha256 "8768de190d88124c4f69665c5547f6ae33366024db76007876bbff79cd2509ae"
+    url "https://files.pythonhosted.org/packages/c2/ad/e321ee148e871fdb257e9fd5840748d06a72db132815ecb47d42d13b1a3a/zeroconf-0.153.0.tar.gz"
+    sha256 "28bd0baa208f4ea481a386e9eefdd3a65663fada34233432301a0c221d741d1d"
   end
 
   resource "zopfli" do
