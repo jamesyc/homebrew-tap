@@ -3,8 +3,8 @@ class Tcapsule < Formula
 
   desc "Install Samba 4 on Apple Time Capsules and AirPort Extremes"
   homepage "https://github.com/jamesyc/TimeCapsuleSMB"
-  url "https://github.com/jamesyc/TimeCapsuleSMB/archive/refs/tags/v3.8.4.tar.gz"
-  sha256 "ebcd29580022dc0b32dcc47e384d03270421dd21caac9c5694f12936d05dcda5"
+  url "https://github.com/jamesyc/TimeCapsuleSMB/archive/refs/tags/v3.8.5.tar.gz"
+  sha256 "baf99eef0334bbe2e6d75ba03bc64b1aa04277758997e48ad0b5961dc1659093"
   license "GPL-3.0-only"
 
   depends_on "python@3.15"
@@ -23,13 +23,13 @@ class Tcapsule < Formula
   end
 
   resource "pycryptodome" do
-    url "https://files.pythonhosted.org/packages/61/52/6bf92ead9cfcfc788d9f07f2f8dad4592b190d36ed3d26a5985bbf95ff5d/pycryptodome-4.3.0.tar.gz"
-    sha256 "663fc5e1c4a3562d00c3a9b265fb94ef5f68c6085d982638b83e713af5487c06"
+    url "https://files.pythonhosted.org/packages/51/f2/ccbeb91d186b2323fc99986499d2da3caab2151b1c2fb2ef74f7488d8934/pycryptodome-4.4.0.tar.gz"
+    sha256 "eab7620c60c85f3fa251d026ec06e094f036d96187bebb9752e46fbcebabbb55"
   end
 
   resource "zeroconf" do
-    url "https://files.pythonhosted.org/packages/c2/ad/e321ee148e871fdb257e9fd5840748d06a72db132815ecb47d42d13b1a3a/zeroconf-0.153.0.tar.gz"
-    sha256 "28bd0baa208f4ea481a386e9eefdd3a65663fada34233432301a0c221d741d1d"
+    url "https://files.pythonhosted.org/packages/d6/dd/b1eb6a87dc0376289fb78c13231c4702797da49dd0da062c5d46a4cff865/zeroconf-0.154.0.tar.gz"
+    sha256 "830315497af9bbd75924c2218cd3b64f0bde0e808ee316aabb5d9288836c0c43"
   end
 
   resource "zopfli" do
