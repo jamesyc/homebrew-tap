@@ -3,8 +3,8 @@ class Tcapsule < Formula
 
   desc "Install Samba 4 on Apple Time Capsules and AirPort Extremes"
   homepage "https://github.com/jamesyc/TimeCapsuleSMB"
-  url "https://github.com/jamesyc/TimeCapsuleSMB/archive/refs/tags/v3.8.6.tar.gz"
-  sha256 "e8c2b25307be3db9e9e013492aed235dffa80abe8d761a520c7763f7d8aba9f1"
+  url "https://github.com/jamesyc/TimeCapsuleSMB/archive/refs/tags/v3.8.7.tar.gz"
+  sha256 "d68c213c34de90e0603c35984fb3df23184c54549d22ca9608d41d7109b346dc"
   license "GPL-3.0-only"
 
   depends_on "python@3.15"
