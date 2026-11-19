@@ -3,8 +3,8 @@ class Tcapsule < Formula
 
   desc "Install Samba 4 on Apple Time Capsules and AirPort Extremes"
   homepage "https://github.com/jamesyc/TimeCapsuleSMB"
-  url "https://github.com/jamesyc/TimeCapsuleSMB/archive/refs/tags/v3.8.7.tar.gz"
-  sha256 "d68c213c34de90e0603c35984fb3df23184c54549d22ca9608d41d7109b346dc"
+  url "https://github.com/jamesyc/TimeCapsuleSMB/archive/refs/tags/v3.8.8.tar.gz"
+  sha256 "4f87c39df40e1f7d68eeb65af14f923d5c73748a1756f3a9f4a0bd701ac79980"
   license "GPL-3.0-only"
 
   depends_on "python@3.15"
@@ -23,8 +23,8 @@ class Tcapsule < Formula
   end
 
   resource "pycryptodome" do
-    url "https://files.pythonhosted.org/packages/51/f2/ccbeb91d186b2323fc99986499d2da3caab2151b1c2fb2ef74f7488d8934/pycryptodome-4.4.0.tar.gz"
-    sha256 "eab7620c60c85f3fa251d026ec06e094f036d96187bebb9752e46fbcebabbb55"
+    url "https://files.pythonhosted.org/packages/d6/4d/dfbdfacc0579fa4394e3a442f034c2fb41a44d95d21bf9cd85cee89c3df6/pycryptodome-4.5.0.tar.gz"
+    sha256 "51e97a8d1cf101974bc40c20b3191cb1903891e5c172346943d5d4f3bc4f9d83"
   end
 
   resource "zeroconf" do
