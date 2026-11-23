@@ -1,6 +1,6 @@
 cask "timecapsulesmb" do
-  version "3.8.8"
-  sha256 "606ceeccbc109b90fdf755ea2bec80528cb6ed943403a4d3dfec8f274d92c811"
+  version "3.8.9"
+  sha256 "b066b4c572352ee75323645a8f9149c787a8b21bcec6a117a3c072cdab455c47"
 
   url "https://github.com/jamesyc/TimeCapsuleSMB/releases/download/v#{version}/TimeCapsuleSMB.dmg"
   name "TimeCapsuleSMB"
